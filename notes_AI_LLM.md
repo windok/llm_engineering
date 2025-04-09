@@ -1,14 +1,12 @@
 # AI, LLM
 
-## Courses
+## Links
 
 https://www.udemy.com/course/llm-engineering-master-ai-and-large-language-models
 
 https://huggingface.co/blog/mlabonne/llm-course
 
 https://www.udemy.com/course/aws-ai-practitioner-certified/
-
-## Others
 
 https://towardsdatascience.com/understanding-llms-from-scratch-using-middle-school-math-e602d27ec876/
 
@@ -42,15 +40,9 @@ https://github.com/ed-donner/llm_engineering
     
 - Models
     
-    ### How to use:
+    https://www.vellum.ai/llm-leaderboard
     
-    - Chat interface
-    - Cloud APIs
-    - Direct inference
-        - With HuggingFace and Transformers library
-        - Or with Ollama to run locally
-    
-    ### Providers
+    ## Providers
     
     - [ChatGPT](https://chatgpt.com/?model=gpt-4o) (latest model GPT-4o and o1) from OpenAI
         
@@ -58,7 +50,50 @@ https://github.com/ed-donner/llm_engineering
         
         [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
         
-        OpenAI: `sk-proj-e_O*****`
+        OpenAI: `sk-proj-*******` 
+        
+        ```python
+        import os
+        import json
+        from dotenv import load_dotenv
+        from IPython.display import Markdown, display, update_display
+        from openai import OpenAI
+        
+        load_dotenv(override=True)
+        api_key = os.getenv('OPENAI_API_KEY')
+        
+        if not api_key or not api_key.startswith('sk-proj-') or not len(api_key)>10:
+            print("There might be a problem with your API key? Please visit the troubleshooting notebook!")
+            
+        MODEL = 'gpt-4o-mini'
+        openai = OpenAI()
+        
+        # to receive json format:
+        response = openai.chat.completions.create(
+            model=MODEL,
+            messages=[
+                {"role": "system", "content": "You will generate JSON and return it"}, # system prompt
+                {"role": "user", "content": "Generate dummy json and retrun in JSON. It's important to mention this in prompt even when response_format is json_object"} # user prompt
+            ],
+            response_format={"type": "json_object"}
+        )
+        result = response.choices[0].message.content
+        data = json.loads(result)
+        
+        # to stream response and rerender Markdown
+        stream = openai.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}],
+            stream=True
+        )
+            
+        response = ""
+        display_handle = display(Markdown(""), display_id=True)
+        for chunk in stream:
+            response += chunk.choices[0].delta.content or ''
+            response = response.replace("```","").replace("markdown", "")
+            update_display(Markdown(response), display_id=display_handle.display_id)
+        ```
         
     - Ollama from Meta (open)
         
@@ -78,7 +113,6 @@ https://github.com/ed-donner/llm_engineering
         
         ```python
         import requests
-        from bs4 import BeautifulSoup
         from IPython.display import Markdown, display
         
         OLLAMA_API = "http://localhost:11434/api/chat"
@@ -129,6 +163,54 @@ https://github.com/ed-donner/llm_engineering
     - Gemma from Google
     - Phi from Microsoft
     - [Perplexity](https://www.perplexity.ai/) (latest model is Perplexity Pro) from Perplexity.ai
+
+## Theory
+
+**How to use:**
+
+- Chat interface
+- Cloud APIs
+- Direct inference
+    - With HuggingFace and Transformers library
+    - Or with Ollama to run locally
+
+**Evolution of AI:**
+
+- Prompt engineers
+- Custom GPTs (GPT Store)
+- Copilots (Github or Microsoft)
+- Agentization (Github Copilot Workspace)
+
+**Paramaters/weights** - 1b, 10b, 100b, 1t, 10t, ….
+
+billions, trilons parameters to configure model
+
+- gpt-4 ~ 1.76t
+- gpt-3 ~ 175b
+
+Tokens: [https://platform.openai.com/tokenizer](https://platform.openai.com/tokenizer)
+
+1 token ~4 characters (in English)
+
+1 token ~0.75 words (in English)
+
+numbers are tokenized by ~3 digits
+
+Context window
+
+ChatGPT sends whole history of conversation because there is no “memory”
+
+Prompting:
+
+zero-shot promting -  perform a task without providing any examples
+
+`Translate the following sentence to French: 'How are you?'`
+
+one-shot promting - 1 example
+
+`Translate the following sentence to French: Example: 'Good morning' -> 'Bonjour'Now, translate: 'How are you?'`
+
+multiple-shot promting - multiple examples
 
 ## Course: thenewboston LLM Application Development
 
