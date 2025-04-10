@@ -16,7 +16,11 @@ https://www.youtube.com/watch?v=l8pRSuU81PU
 
 https://www.youtube.com/watch?v=7xTGNNLPyMI
 
+https://www.youtube.com/watch?v=1Se2zTlXDwY
+
 https://platform.openai.com/docs/concepts - Key Concepts
+
+https://ai-2027.com/
 
 ## Course: **LLM Engineering: Master AI, Large Language Models & Agents**
 
@@ -48,53 +52,91 @@ https://github.com/ed-donner/llm_engineering
         
         Billing: [https://platform.openai.com/settings/organization/billing/overview](https://platform.openai.com/settings/organization/billing/overview)
         
-        [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+        Keys: [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+        
+        **new API added: [Responses vs. Chat Completions](https://platform.openai.com/docs/guides/responses-vs-chat-completions)**
         
         OpenAI: `sk-proj-*******` 
         
-        ```python
-        import os
-        import json
-        from dotenv import load_dotenv
-        from IPython.display import Markdown, display, update_display
-        from openai import OpenAI
-        
-        load_dotenv(override=True)
-        api_key = os.getenv('OPENAI_API_KEY')
-        
-        if not api_key or not api_key.startswith('sk-proj-') or not len(api_key)>10:
-            print("There might be a problem with your API key? Please visit the troubleshooting notebook!")
+        - Chat Completion with streaming
             
-        MODEL = 'gpt-4o-mini'
-        openai = OpenAI()
-        
-        # to receive json format:
-        response = openai.chat.completions.create(
-            model=MODEL,
-            messages=[
-                {"role": "system", "content": "You will generate JSON and return it"}, # system prompt
-                {"role": "user", "content": "Generate dummy json and retrun in JSON. It's important to mention this in prompt even when response_format is json_object"} # user prompt
-            ],
-            response_format={"type": "json_object"}
-        )
-        result = response.choices[0].message.content
-        data = json.loads(result)
-        
-        # to stream response and rerender Markdown
-        stream = openai.chat.completions.create(
-            model=MODEL,
-            messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}],
-            stream=True
-        )
+            ```python
+            import os
+            import json
+            from dotenv import load_dotenv
+            from IPython.display import Markdown, display, update_display
+            from openai import OpenAI
             
-        response = ""
-        display_handle = display(Markdown(""), display_id=True)
-        for chunk in stream:
-            response += chunk.choices[0].delta.content or ''
-            response = response.replace("```","").replace("markdown", "")
-            update_display(Markdown(response), display_id=display_handle.display_id)
-        ```
-        
+            load_dotenv(override=True)
+            api_key = os.getenv('OPENAI_API_KEY')
+            
+            if not api_key or not api_key.startswith('sk-proj-') or not len(api_key)>10:
+                print("There might be a problem with your API key? Please visit the troubleshooting notebook!")
+                
+            MODEL = 'gpt-4o-mini'
+            openai = OpenAI()
+            
+            # to receive in structured json: https://platform.openai.com/docs/guides/structured-outputs
+            # to receive json format (old varation):
+            response = openai.chat.completions.create(
+                model=MODEL,
+                messages=[
+                    {"role": "system", "content": "You will generate JSON and return it"}, # system prompt
+                    {"role": "user", "content": "Generate dummy json and retrun in JSON. It's important to mention this in prompt even when response_format is json_object"} # user prompt
+                ],
+                response_format={"type": "json_object"}
+            )
+            result = response.choices[0].message.content
+            data = json.loads(result)
+            
+            # to stream response and rerender Markdown
+            stream = openai.chat.completions.create(
+                model=MODEL,
+                messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}],
+                stream=True
+            )
+                
+            response = ""
+            display_handle = display(Markdown(""), display_id=True)
+            for chunk in stream:
+                response += chunk.choices[0].delta.content or ''
+                response = response.replace("```","").replace("markdown", "")
+                update_display(Markdown(response), display_id=display_handle.display_id)
+            ```
+            
+        - Image generation
+            
+            ```python
+            import os
+            from dotenv import load_dotenv
+            from openai import OpenAI
+            import base64
+            from io import BytesIO
+            from PIL import Image
+            from IPython.display import display
+            
+            load_dotenv(override=True)
+            openai_api_key = os.getenv('OPENAI_API_KEY')
+                
+            MODEL = "gpt-4o-mini"
+            openai = OpenAI()
+            
+            def artist(city):
+                image_response = openai.images.generate(
+                        model="dall-e-3",
+                        prompt=f"An image representing a vacation in {city}, showing tourist spots and everything unique about {city}, in a vibrant pop-art style",
+                        size="1024x1024",
+                        n=1,
+                        response_format="b64_json",
+                    )
+                image_base64 = image_response.data[0].b64_json
+                image_data = base64.b64decode(image_base64)
+                return Image.open(BytesIO(image_data))
+            
+            image = artist("New York City")
+            display(image)
+            ```
+            
     - Ollama from Meta (open)
         
         https://ollama.com/search
@@ -166,7 +208,7 @@ https://github.com/ed-donner/llm_engineering
 
 ## Theory
 
-**How to use:**
+### **How to use:**
 
 - Chat interface
 - Cloud APIs
@@ -174,19 +216,23 @@ https://github.com/ed-donner/llm_engineering
     - With HuggingFace and Transformers library
     - Or with Ollama to run locally
 
-**Evolution of AI:**
+### **Evolution of AI:**
 
 - Prompt engineers
 - Custom GPTs (GPT Store)
 - Copilots (Github or Microsoft)
 - Agentization (Github Copilot Workspace)
 
-**Paramaters/weights** - 1b, 10b, 100b, 1t, 10t, ….
+### **Paramaters/weights** - 1b, 10b, 100b, 1t, 10t, ….
 
 billions, trilons parameters to configure model
 
 - gpt-4 ~ 1.76t
 - gpt-3 ~ 175b
+
+### Context window
+
+ChatGPT sends whole history of conversation because there is no “memory”
 
 Tokens: [https://platform.openai.com/tokenizer](https://platform.openai.com/tokenizer)
 
@@ -195,10 +241,6 @@ Tokens: [https://platform.openai.com/tokenizer](https://platform.openai.com/toke
 1 token ~0.75 words (in English)
 
 numbers are tokenized by ~3 digits
-
-Context window
-
-ChatGPT sends whole history of conversation because there is no “memory”
 
 Prompting:
 
@@ -211,6 +253,331 @@ one-shot promting - 1 example
 `Translate the following sentence to French: Example: 'Good morning' -> 'Bonjour'Now, translate: 'How are you?'`
 
 multiple-shot promting - multiple examples
+
+### Tools
+
+- fetch data or add knowledge or context
+- Take action, like booking a meeting
+- Perform calculations
+- Modify the UI
+
+## LLM Utilities / Tools
+
+### https://www.gradio.app/
+
+- Example with multiple models answering question
+    
+    ```python
+    import os
+    from dotenv import load_dotenv
+    from openai import OpenAI
+    import anthropic
+    import gradio as gr
+    
+    load_dotenv(override=True)
+    openai_api_key = os.getenv('OPENAI_API_KEY')
+    anthropic_api_key = os.getenv('ANTHROPIC_API_KEY')
+    
+    if not openai_api_key:
+        print("OpenAI API Key not set")
+        
+    if not anthropic_api_key:
+        print("Anthropic API Key not set")
+    
+    openai = OpenAI()
+    claude = anthropic.Anthropic()
+    
+    system_message = "You are a helpful assistant that responds in markdown"
+    
+    def stream_gpt(prompt):
+        messages = [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": prompt}
+          ]
+        stream = openai.chat.completions.create(
+            model='gpt-4o-mini',
+            messages=messages,
+            stream=True
+        )
+        result = ""
+        for chunk in stream:
+            result += chunk.choices[0].delta.content or ""
+            yield result # cumulative results instead of single chunk piece
+    
+    def stream_claude(prompt):
+        result = claude.messages.stream(
+            model="claude-3-haiku-20240307",
+            max_tokens=1000,
+            temperature=0.7,
+            system=system_message,
+            messages=[
+                {"role": "user", "content": prompt},
+            ],
+        )
+        response = ""
+        with result as stream:
+            for text in stream.text_stream:
+                response += text or ""
+                yield response  # cumulative results instead of single chunk piece
+    
+    def stream_model(prompt, model):
+        if model=="GPT":
+            result = stream_gpt(prompt)
+        elif model=="Claude":
+            result = stream_claude(prompt)
+        else:
+            raise ValueError("Unknown model")
+        yield from result
+    
+    view = gr.Interface(
+        fn=stream_model,
+        inputs=[gr.Textbox(label="Your message:"), gr.Dropdown(["GPT", "Claude"], label="Select model", value="GPT")],
+        outputs=[gr.Markdown(label="Response:")],
+        flagging_mode="never"
+    )
+    view.launch(
+        inbrowser=False, # Adding inbrowser=True opens up a new browser window automatically
+        share=False # Adding share=True means that it can be accessed publically. NOTE: Some Anti-virus software and Corporate Firewalls might not like you using share=True. If you're at work on on a work network, I suggest skip this test.
+    ) 
+    ```
+    
+- Chatbot with changing system prompt
+    
+    ```python
+    import os
+    from dotenv import load_dotenv
+    from openai import OpenAI
+    import gradio as gr
+    
+    load_dotenv(override=True)
+    openai_api_key = os.getenv('OPENAI_API_KEY')
+    
+    openai = OpenAI()
+    MODEL = 'gpt-4o-mini'
+    
+    system_message = "You are a helpful assistant"
+    
+    def chat(message, history):
+        relevant_system_message = system_message
+    
+        # it's possible to adjust system message based on user prompt
+        if 'php' in message:
+            relevant_system_message += " You shouldn't answer questions related to PHP, PHP applications and packages."
+            
+        messages = [{"role": "system", "content": system_message}] + history + [{"role": "user", "content": message}]
+    
+        stream = openai.chat.completions.create(model=MODEL, messages=messages, stream=True)
+    
+        response = ""
+        for chunk in stream:
+            response += chunk.choices[0].delta.content or ''
+            yield response
+    ```
+    
+- Chatbot with tools (informed user support agent)
+    
+    ```python
+    import os
+    import json
+    from dotenv import load_dotenv
+    from openai import OpenAI
+    import gradio as gr
+    
+    load_dotenv(override=True)
+    openai_api_key = os.getenv('OPENAI_API_KEY')
+    
+    MODEL = "gpt-4o-mini"
+    openai = OpenAI()
+    
+    system_message = "You are a helpful assistant for an Airline called FlightAI. \
+       Give short, courteous answers, no more than 1 sentence. Always be accurate. If you don't know the answer, say so."
+    
+    ticket_prices = {"london": "$799", "paris": "$899", "tokyo": "$1400", "berlin": "$499"}
+    def get_ticket_price(destination_city):
+        print(f"Tool get_ticket_price called for {destination_city}")
+        city = destination_city.lower()
+        return ticket_prices.get(city, "Unknown")
+        
+    price_function = {
+        "name": "get_ticket_price",
+        "description": "Get the price of a return ticket to the destination city. Call this whenever you need to know the ticket price, for example when a customer asks 'How much is a ticket to this city'",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "destination_city": {
+                    "type": "string",
+                    "description": "The city that the customer wants to travel to",
+                },
+            },
+            "required": ["destination_city"],
+            "additionalProperties": False
+        }
+    }
+    tools = [{"type": "function", "function": price_function}]
+    
+    def chat(message, history):
+        messages = [{"role": "system", "content": system_message}] + history + [{"role": "user", "content": message}]
+        response = openai.chat.completions.create(
+            model=MODEL,
+            messages=messages,
+            tools=tools # tools are added to ask for info if needed
+        )
+        
+        if response.choices[0].finish_reason=="tool_calls":
+            tool_calls_message = response.choices[0].message
+            tool_calls_response = handle_tool_call(tool_calls_message)
+            
+            messages = messages + [tool_calls_message, tool_calls_response]
+    
+    				# ask again with information about prices
+            response = openai.chat.completions.create(model=MODEL, messages=messages)
+    
+        return response.choices[0].message.content
+    
+    def handle_tool_call(tool_calls_message):
+        tool_call = tool_calls_message.tool_calls[0]
+        arguments = json.loads(tool_call.function.arguments)
+        city = arguments.get('destination_city')
+        
+        return {
+            "role": "tool",
+            "content": json.dumps({
+                "destination_city": city,
+                "price": get_ticket_price(city)
+            }),
+            "tool_call_id": tool_call.id
+        }
+    
+    gr.ChatInterface(fn=chat, type="messages").launch()
+    ```
+    
+- Multimodal example: completion with tools + image generation + audio
+    
+    ```python
+    import os
+    import json
+    from dotenv import load_dotenv
+    from openai import OpenAI
+    import gradio as gr
+    import base64
+    from io import BytesIO
+    from PIL import Image
+    from pydub import AudioSegment
+    from pydub.playback import play
+    
+    load_dotenv(override=True)
+    openai_api_key = os.getenv('OPENAI_API_KEY')
+    MODEL = "gpt-4o-mini"
+    openai = OpenAI()
+    
+    system_message = "You are a helpful assistant for an Airline called FlightAI. \
+       Give short, courteous answers, no more than 1 sentence. Always be accurate. If you don't know the answer, say so."
+    
+    ticket_prices = {"london": "$799", "paris": "$899", "tokyo": "$1400", "berlin": "$499"}
+    def get_ticket_price(destination_city):
+        print(f"Tool get_ticket_price called for {destination_city}")
+        city = destination_city.lower()
+        return ticket_prices.get(city, "Unknown")
+        
+    price_function = {
+        "name": "get_ticket_price",
+        "description": "Get the price of a return ticket to the destination city. Call this whenever you need to know the ticket price, for example when a customer asks 'How much is a ticket to this city'",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "destination_city": {
+                    "type": "string",
+                    "description": "The city that the customer wants to travel to",
+                },
+            },
+            "required": ["destination_city"],
+            "additionalProperties": False
+        }
+    }
+    tools = [{"type": "function", "function": price_function}]
+    
+    def handle_tool_call(tool_calls_message):
+        tool_call = tool_calls_message.tool_calls[0]
+        arguments = json.loads(tool_call.function.arguments)
+        city = arguments.get('destination_city')
+        
+        return {
+            "role": "tool",
+            "content": json.dumps({
+                "destination_city": city,
+                "price": get_ticket_price(city)
+            }),
+            "tool_call_id": tool_call.id
+        }, city
+        
+    def artist(city):
+        image_response = openai.images.generate(
+                model="dall-e-3",
+                prompt=f"An image representing a vacation in {city}, showing tourist spots and everything unique about {city}, in a vibrant pop-art style",
+                size="1024x1024",
+                n=1,
+                response_format="b64_json",
+            )
+        image_base64 = image_response.data[0].b64_json
+        image_data = base64.b64decode(image_base64)
+        return Image.open(BytesIO(image_data))
+    
+    def talker(message):
+        response = openai.audio.speech.create(
+          model="tts-1",
+          voice="onyx",    # Also, try replacing onyx with alloy
+          input=message
+        )
+        
+        audio_stream = BytesIO(response.content)
+        audio = AudioSegment.from_file(audio_stream, format="mp3")
+        play(audio)
+        
+    def chat(history):
+        messages = [{"role": "system", "content": system_message}] + history
+        response = openai.chat.completions.create(model=MODEL, messages=messages, tools=tools)
+        image = None
+        
+        if response.choices[0].finish_reason=="tool_calls":
+            tool_calls_message = response.choices[0].message
+            tool_calls_response, city = handle_tool_call(tool_calls_message)
+            
+            messages = messages + [tool_calls_message, tool_calls_response]
+            image = artist(city)
+    
+            response = openai.chat.completions.create(model=MODEL, messages=messages)
+            
+        reply = response.choices[0].message.content
+        history += [{"role":"assistant", "content":reply}]
+    
+        # Comment out or delete the next line if you'd rather skip Audio for now..
+        talker(reply)
+        
+        return history, image
+        
+    with gr.Blocks() as ui:
+        with gr.Row():
+            chatbot = gr.Chatbot(height=500, type="messages")
+            image_output = gr.Image(height=500)
+        with gr.Row():
+            entry = gr.Textbox(label="Chat with our AI Assistant:")
+        with gr.Row():
+            clear = gr.Button("Clear")
+    
+        def do_entry(message, history):
+            history += [{"role":"user", "content":message}]
+            return "", history
+    
+        entry.submit(do_entry, inputs=[entry, chatbot], outputs=[entry, chatbot]).then(
+            chat, inputs=chatbot, outputs=[chatbot, image_output]
+        )
+        clear.click(lambda: None, inputs=None, outputs=chatbot, queue=False)
+    
+    ui.launch(inbrowser=True)
+    ```
+    
+
+https://www.vellum.ai/llm-leaderboard
 
 ## Course: thenewboston LLM Application Development
 
