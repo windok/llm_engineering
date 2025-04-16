@@ -285,6 +285,87 @@ I recorded this playlist on YouTube with more on parameters, training and infere
 
 [https://www.youtube.com/playlist?list=PLWHe-9GP9SMMdl6SLaovUQF2abiLGbMjs](https://www.youtube.com/playlist?list=PLWHe-9GP9SMMdl6SLaovUQF2abiLGbMjs)
 
+### How to choose correct LLM for the project
+
+1. open-source or closed
+2. release date and knowledge cut-off
+3. parameters
+    1. Sense of strength of the model, how many efforts needed to fine-tune model further.
+4. training tokens
+    1. Size of training data set
+5. context length
+    1. Total amount of token that model can keep in a memory
+    2. important for multi-shot prompting
+6. inference cost (API charge, Subscription or Runtime compute)
+    1. how much will it cost to run each query
+    2. Important for long run
+    3. Counts questions and responses size
+7. training cost
+    1. if you create your own model instead of using existing one
+8. build cost
+    1. depends you build your own model or you integrate existing or you combine several models
+9. rate limits
+    1. Frontier models have rate limits
+10. speed
+11. latency
+12. license
+
+**Chinchilla Scaling Law** - number of parameters ~ proportional to the number of training tokens.
+
+Benchmarks:
+
+- ARC (reasoning)
+- DROP (language comprehension)
+- HellaSwage (common sense)
+- MMLU (understanding)
+- TruthfulQA (accuracy)
+- Winogrande (context) understands context of the question and resolves ambiguity
+- GSM8K (math)
+- 
+- ELO (chat) comparing LLMs with other LLMs
+- HumanEval (python coding) 164 problems writing code based on docstrings
+- MultiPL-E (broader coding) Translation of HumanEval to 18 different languages
+- 
+- GPQA (Graduate Tests) “resistent to google”. 448 expert questions that hard to “google”
+- BBHard (Future Capabilities) 204 tasks believed beyond capabilities of LLMs (no longer!)
+- Math Lv5 (Math) High school level math competition problems
+- IFEval (Difficult instructions) Like “write mote than 400 words” and “mention AI at least 3 times”
+- MuSR (Multistep Soft Reasoning) Logical deduction, such as analyzing 1000 word murder mystery and answering “Who has means, motive and opportunity?”
+- MMLU-PRO (Harder MMLU) more advanced and cleaned up version of MMLU including choice of 10 answers instead of 4
+
+**🤗 [Open LLM Leaderboard Archived](https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard#/)**
+
+🤗 [BigCode Models Leaderboard](https://huggingface.co/spaces/bigcode/bigcode-models-leaderboard)
+
+🤗 [LLM-Perf Leaderboard](https://huggingface.co/spaces/optimum/llm-perf-leaderboard) Take a look at `Find Your Best Model` tab
+
+Vellum https://www.vellum.ai/llm-leaderboard
+
+SEAL https://scale.com/leaderboard
+
+🤗 ⛑️ [Medical LLM Leaderboard](https://huggingface.co/spaces/openlifescienceai/open_medical_llm_leaderboard)
+
+Arena: humans evaluating LLMs https://lmarena.ai/
+
+Leaderboardhttps://lmarena.ai/?leaderboard
+
+**Performance metrics:**
+
+- Model-centric or Technical Metrics
+    - Loss (e.g. cross-entropy loss)
+    - Perplexity
+    - Accuracy
+    - Precision, Recall, F1
+    - AUC-ROC
+    - **Easiest to optimize with**
+- Business-centric or Outcome Metrics
+    - KPIs tied to business objectives
+    - ROI
+    - Improvements in time, cost or resources
+    - Customer satisfaction
+    - Benchmark comparisons
+    - **Most tangible impact**
+
 ## LLM Utilities / Tools
 
 ### https://www.gradio.app/
